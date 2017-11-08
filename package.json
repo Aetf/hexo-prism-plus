@@ -1,0 +1,22 @@
+{
+    "name": "hexo-prism-plus",
+    "version": "0.0.1",
+    "description": "Better code block highlighting using Prism",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "postinstall": "npm install --save hexo-inject"
+    },
+    "keywords": [
+        "hexo",
+        "prism",
+        "code",
+        "highlight"
+    ],
+    "author": "Aetf",
+    "license": "BSD-2-Clause",
+    "dependencies": {
+        "lodash": "^4.17.4",
+        "node-prismjs": "^0.1.1"
+    }
+}
