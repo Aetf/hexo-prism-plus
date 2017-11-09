@@ -1,4 +1,10 @@
 # hexo-prism-plus
+
+[![npm version](https://badge.fury.io/js/hexo-prism-plus.svg)](https://badge.fury.io/js/hexo-prism-plus)
+[![npm dependencies](https://david-dm.org/Aetf/hexo-prism-plus.svg)](https://david-dm.org/Aetf/hexo-prism-plus)
+
+[![NPM](https://nodei.co/npm/hexo-prism-plus.png)](https://npmjs.org/package/hexo-prism-plus)
+
 Better code block highlighting with [Prism](http://prismjs.com/index.html) for [Hexo](https://hexo.io), which exposes the full power of Prism with an elegent interface
 in markdown.
 
