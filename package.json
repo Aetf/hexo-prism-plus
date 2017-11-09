@@ -16,6 +16,8 @@
     "author": "Aetf",
     "license": "BSD-2-Clause",
     "dependencies": {
+        "hexo-inject": "^1.0.0",
+        "hexo-util": "^0.6.2",
         "lodash": "^4.17.4",
         "node-prismjs": "^0.1.1"
     }
