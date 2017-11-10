@@ -135,8 +135,12 @@ prism_plus:
     enable: true
     # Custom Prism path
     vendors:
-        prism: https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/prism.min.js
-        prism_css: https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/themes/prism.min.css
+        prism:
+            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/prism.min.js
+            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/plugins/line-numbers/prism-line-numbers.min.js
+        prism_css:
+            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/themes/prism.min.css
+            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/plugins/line-numbers/prism-line-numbers.min.css
     # Default language if not specified inline in code blocks
     default_lang: clike
     # Default preset if no preset is specified inline
