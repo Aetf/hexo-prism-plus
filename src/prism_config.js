@@ -1,7 +1,8 @@
 'use strict';
 
-const { LINENO_CLASS } = require('../consts');
+const util = require('hexo-util');
 const _ = require('lodash');
+const { LINENO_CLASS } = require('./consts');
 
 function PrismConfig(opts) {
     this.presets = opts.presets;
@@ -9,6 +10,7 @@ function PrismConfig(opts) {
     this.data = {};
     this.styles = [];
 
+    console.log('Loading default preset');
     this._loadPreset(opts.default_preset);
 }
 
@@ -44,13 +46,19 @@ PrismConfig.prototype._loadPreset = function (preset) {
     this.data = {};
     this.styles = [];
 
+    console.log('Loading preset: ' + preset);
     for (var key in preset) {
+        if (!preset[key]) continue;
+
+        console.log('setting key ' + key + ' value ' + preset[key]);
         if (key === 'classes') {
+            if (preset[key].length == 0) continue;
             this._set(key, preset[key].join(','));
         } else if (key === 'styles') {
+            if (preset[key].length == 0) continue;
             this._set(key, preset[key].join(';'));
         } else {
-            this._set(key, value);
+            this._set(key, preset[key]);
         }
     }
 };
@@ -59,8 +67,12 @@ PrismConfig.prototype._loadPreset = function (preset) {
  * Update the config with inline options string
  */
 PrismConfig.prototype.update = function (inline) {
+    if (!inline || inline.length == 0) return;
+
+    console.log('update inline: '+ inline);
     var pairs = inline.split(' ');
     // Find preset and load first
+    console.log('Loading preset');
     pairs.forEach(function (pair) {
         var [key, value] = pair.split('=');
         if (key === 'preset' && value in this.presets) {
@@ -68,6 +80,7 @@ PrismConfig.prototype.update = function (inline) {
         }
     });
 
+    console.log('inline options');
     pairs.forEach(function (pair) {
         var [key, value] = pair.split('=');
         if (!value || key === 'preset') return;
@@ -75,7 +88,6 @@ PrismConfig.prototype.update = function (inline) {
         this._set(key, value);
     }, this);
 };
-
 
 PrismConfig.prototype.pre_class = function () {
     return _.toArray(this.classes).join(' ');
@@ -91,4 +103,32 @@ PrismConfig.prototype.data_attr = function () {
         attrs.push('data-' + k + '="' + this.data[k] + '"');
     }
     return attrs.join(' ');
+}
+
+module.exports.PrismConfig = PrismConfig;
+
+module.exports.prepareLocals = function (opts, args, code) {
+    var lang = opts.default_lang || 'none';
+
+    args = _.trim(args).split(' ');
+    if (args[0].indexOf('=') == -1) {
+        // treat it as lang
+        lang = args.shift();
+    }
+
+    var locals = {
+        lang: lang,
+        code: util.escapeHTML(code)
+    };
+
+    console.log('Creating PrismConfig with args: ' + args);
+    var pconfig = new PrismConfig(opts);
+    pconfig.update(args);
+    console.log('After update');
+
+    locals.pre_class = pconfig.pre_class();
+    locals.pre_style = pconfig.pre_style();
+    locals.data_attr = pconfig.data_attr();
+
+    return locals;
 }

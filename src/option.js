@@ -14,6 +14,8 @@ function getOptions (hexo) {
 
     var opts = _.defaults({}, config.prism_plus, DEFAULT_OPTIONS);
 
+    canonicalVendors(opts.vendors);
+
     return opts
 }
 

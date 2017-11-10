@@ -1,6 +1,6 @@
 'use strict';
 
-const { PRISM_MARKER, CODE_BLOCK_REGEX } = require('../consts');
+const { PRISM_MARKER } = require('../consts');
 
 function Injector(hexo, opts) {
     this.hexo = hexo;
@@ -8,11 +8,21 @@ function Injector(hexo, opts) {
 }
 
 Injector.prototype._shouldInject = function (src) {
-    return src.indexOf(PRISM_MARKER) >= 0 || CODE_BLOCK_REGEX.test(src);
+    var should = src.indexOf(PRISM_MARKER) >= 0
+    console.log('shouldInject: ' + should);
+    return should;
 }
 
 Injector.prototype._inject = function (inject) {
-    var opts = {
+    this.hexo.log.info('Check Injecting!');
+
+    if (!this.opts.enable) {
+        return;
+    }
+
+    this.hexo.log.info('Injecting!');
+
+    const opts = {
         inline: true,
         shouldInject: this._shouldInject.bind(this)
     };
@@ -29,6 +39,8 @@ Injector.prototype._inject = function (inject) {
 
 Injector.prototype.register = function () {
     var { hexo, opts, _inject } = this;
+
+    hexo.log.info('Injector register!');
 
     hexo.extend.filter.register('inject_ready', _inject.bind(this));
 };

@@ -16,6 +16,7 @@
     "author": "Aetf",
     "license": "BSD-2-Clause",
     "dependencies": {
+        "hexo-fs": "^0.2.2",
         "hexo-inject": "^1.0.0",
         "hexo-util": "^0.6.2",
         "lodash": "^4.17.4",

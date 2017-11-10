@@ -10,10 +10,16 @@ const Injector = require('./injector/injector.js')
 
 function register(hexo) {
     var opts = getOptions(hexo);
+    
+    hexo.log.info('Index !!');
 
     new Injector(hexo, opts).register();
     new BacktickCodeBlockFilter(hexo, opts).register();
     new CodeTagPlugin(hexo, opts).register();
+
+    hexo.log.info('Register completed!!');
+
+    hexo.log.info('has includecode: ' + hexo.extend.tag.env.getExtension('includecode'));
 }
 
 register(hexo);
