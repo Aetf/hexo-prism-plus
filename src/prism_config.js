@@ -70,7 +70,7 @@ PrismConfig.prototype.update = function (pairs) {
         if (key === 'preset' && value in this.presets) {
             this._loadPreset(this.presets[value]);
         }
-    });
+    }, this);
 
     pairs.forEach(function (pair) {
         var [key, value] = pair.split('=');
