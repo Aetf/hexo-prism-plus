@@ -97,10 +97,6 @@ To insert code snippets from file with Prism highlight, use
 `/path/to/file` is relative to `code_dir` in `_config.yml`.
 And inline options have the same format as those used in backtick code blocks.
 
-Pro tip: Prism has a [toolbar plugin](https://dev.misterphilip.com/prism/plugins/toolbar/)
-that can add view source and copy to clipboard links to the highlighted code block.
-Please refer to the next section about how to add plugins to Prism.
-
 ### Customizing Prism
 `hexo-prism-plus` automatically injects Prism js and css to rendered html files. So no theme
 support is needed.
