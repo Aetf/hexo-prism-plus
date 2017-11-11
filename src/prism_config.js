@@ -108,14 +108,11 @@ module.exports.prepareLocals = function (opts, args, code) {
         lang = args.shift() || lang;
     }
 
-    console.log('lang is ' + lang);
-
     var locals = {
         lang: lang,
         code: util.escapeHTML(code)
     };
 
-    console.log('args are ' + args);
     var pconfig = new PrismConfig(opts);
     pconfig.update(args);
 

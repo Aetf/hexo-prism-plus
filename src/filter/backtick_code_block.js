@@ -20,10 +20,7 @@ BacktickCodeBlockFilter.prototype._transform = function (data) {
     var opts = this.opts;
     if (!opts.enable) return;
 
-    hexo.log.info('BacktickCodeBlockFilter _transform');
-
     data.content = data.content.replace(rBacktick, function() {
-        hexo.log.info('BacktickCodeBlockFilter _transform detected code block');
         var start = arguments[1];
         var end = arguments[5];
         var args = arguments[3];
