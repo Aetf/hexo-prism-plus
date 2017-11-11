@@ -8,20 +8,25 @@ module.exports.CODE_BLOCK_TEMPLATE_PATH = pathFn.resolve(__dirname, '../assets/c
 
 module.exports.LINENO_CLASS = 'line-numbers';
 
+const DEFAULT_VENDORS = {
+    // string or list
+    base_url: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/',
+    prism: [
+        'prism.min.js',
+        'plugins/line-numbers/prism-line-numbers.min.js',
+        'plugins/normalize-whitespace/prism-normalize-whitespace.min.js'
+    ],
+    // string or list
+    prism_css: [
+        'themes/prism.min.css',
+        'plugins/line-numbers/prism-line-numbers.min.css'
+    ]
+};
+module.exports.DEFAULT_VENDORS = DEFAULT_VENDORS;
+
 module.exports.DEFAULT_OPTIONS = {
     enable: true,
-    vendors: {
-        // string or list
-        prism: [
-            'https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/prism.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/plugins/line-numbers/prism-line-numbers.min.js'
-        ],
-        // string or list
-        prism_css: [
-            'https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/themes/prism.min.css',
-            'https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/plugins/line-numbers/prism-line-numbers.min.css'
-        ]
-    },
+    vendors: DEFAULT_VENDORS,
     default_lang: 'clike',
     default_preset: {
         lineno: true,

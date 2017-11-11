@@ -114,12 +114,19 @@ This injection can be customized by config options. For example, following is th
 ```yaml
 prism_plus:
     vendors:
+        base_url: https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/
         prism:
-            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/prism.min.js
-        prism_css: https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/themes/prism.min.css
+            - prism.min.js
+            - plugins/line-numbers/prism-line-numbers.min.js
+        prism_css:
+            - themes/prism.min.css
+            - plugins/line-numbers/prism-line-numbers.min.css
 ```
 
+Files in `vendors.prism` and `vendors.prism_css` are injected to rendered html page.
 Note the value of `vendors.prism` and `vendors.prism_css` can be either a string or an array. If it is an array, files will be injected in order.
+
+To save a few types, `vendors.base_url` can be used to set a common prefix for paths. It is unconditionally prepend to all elements under `vendors.prism` and `vendors.prism_css`.
 
 It is also possible to use the configuration tool from
 [Prism download page](http://prismjs.com/download.html) to create your customized build.
@@ -135,12 +142,13 @@ prism_plus:
     enable: true
     # Custom Prism path
     vendors:
+        base_url: https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/
         prism:
-            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/prism.min.js
-            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/plugins/line-numbers/prism-line-numbers.min.js
+            - prism.min.js
+            - plugins/line-numbers/prism-line-numbers.min.js
         prism_css:
-            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/themes/prism.min.css
-            - https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/plugins/line-numbers/prism-line-numbers.min.css
+            - themes/prism.min.css
+            - plugins/line-numbers/prism-line-numbers.min.css
     # Default language if not specified inline in code blocks
     default_lang: clike
     # Default preset if no preset is specified inline
