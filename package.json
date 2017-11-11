@@ -1,20 +1,28 @@
 {
     "name": "hexo-prism-plus",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "Better code block highlighting using Prism",
-    "main": "src/index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "postinstall": "npm install --save hexo-inject"
+    "author": "Aetf",
+    "license": "BSD-2-Clause",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Aetf/hexo-prism-plus.git"
     },
+    "bugs": {
+        "url": "https://github.com/Aetf/hexo-prism-plus/issues"
+    },
+    "homepage": "https://github.com/Aetf/hexo-prism-plus",
     "keywords": [
         "hexo",
         "prism",
         "code",
         "highlight"
     ],
-    "author": "Aetf",
-    "license": "BSD-2-Clause",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "postinstall": "npm install --save hexo-inject"
+    },
     "dependencies": {
         "hexo-fs": "^0.2.2",
         "hexo-inject": "^1.0.0",
