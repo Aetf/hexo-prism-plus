@@ -10,7 +10,6 @@ function PrismConfig(opts) {
     this.data = {};
     this.styles = [];
 
-    console.log('Loading default preset');
     this._loadPreset(opts.default_preset);
 }
 
@@ -46,11 +45,9 @@ PrismConfig.prototype._loadPreset = function (preset) {
     this.data = {};
     this.styles = [];
 
-    console.log('Loading preset: ' + preset);
     for (var key in preset) {
         if (!preset[key]) continue;
 
-        console.log('setting key ' + key + ' value ' + preset[key]);
         if (key === 'classes') {
             if (preset[key].length == 0) continue;
             this._set(key, preset[key].join(','));
@@ -64,15 +61,10 @@ PrismConfig.prototype._loadPreset = function (preset) {
 };
 
 /**
- * Update the config with inline options string
+ * Update the config with inline options, as an array of pairs string
  */
-PrismConfig.prototype.update = function (inline) {
-    if (!inline || inline.length == 0) return;
-
-    console.log('update inline: '+ inline);
-    var pairs = inline.split(' ');
+PrismConfig.prototype.update = function (pairs) {
     // Find preset and load first
-    console.log('Loading preset');
     pairs.forEach(function (pair) {
         var [key, value] = pair.split('=');
         if (key === 'preset' && value in this.presets) {
@@ -80,7 +72,6 @@ PrismConfig.prototype.update = function (inline) {
         }
     });
 
-    console.log('inline options');
     pairs.forEach(function (pair) {
         var [key, value] = pair.split('=');
         if (!value || key === 'preset') return;
@@ -111,20 +102,21 @@ module.exports.prepareLocals = function (opts, args, code) {
     var lang = opts.default_lang || 'none';
 
     args = _.trim(args).split(' ');
-    if (args[0].indexOf('=') == -1) {
-        // treat it as lang
-        lang = args.shift();
+    if (args.length > 0 && args[0].indexOf('=') == -1) {
+        // treat it as lang if it is not empty
+        lang = args.shift() || lang;
     }
+
+    console.log('lang is ' + lang);
 
     var locals = {
         lang: lang,
         code: util.escapeHTML(code)
     };
 
-    console.log('Creating PrismConfig with args: ' + args);
+    console.log('args are ' + args);
     var pconfig = new PrismConfig(opts);
     pconfig.update(args);
-    console.log('After update');
 
     locals.pre_class = pconfig.pre_class();
     locals.pre_style = pconfig.pre_style();

@@ -26,21 +26,15 @@ IncludeCodeTag.prototype._tag = function(args) {
     var path = args.shift();
     // Exit if path is not defined
     if (!path) return;
+
     const src = pathFn.join(hexo.source_dir, codeDir, path);
-
-    hexo.log.info('args is ' + args);
-    var arg = args.join(' ');
-
     return fs.exists(src).then(function(exist) {
-        hexo.log.info('file exists: ' + exist);
         if (exist) return fs.readFile(src);
     }).then(function(code) {
         if (!code) return;
 
-        hexo.log.info('prepareing locals with arg: ' + arg);
-        var locals = prepareLocals(opts, arg, code);
+        var locals = prepareLocals(opts, args.join(' '), code);
 
-        hexo.log.info('rendering');
         return hexo.render.render({ path: CODE_BLOCK_TEMPLATE_PATH }, locals);
     });
 };
