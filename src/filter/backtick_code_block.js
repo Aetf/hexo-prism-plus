@@ -40,8 +40,6 @@ BacktickCodeBlockFilter.prototype.register = function() {
     var hexo = this.hexo;
     var opts = this.opts;
 
-    hexo.log.info('BacktickCodeBlockFilter register!');
-
     hexo.extend.filter.register('before_post_render', this._transform.bind(this));
 }
 

@@ -17,7 +17,7 @@ PrismConfig.prototype._set = function (key, value) {
     value = _.toString(value);
 
     if (key === 'lineno') {
-        if (value) {
+        if (value === 'true') {
             this.classes.add(LINENO_CLASS);
         } else {
             this.classes.delete(LINENO_CLASS);
@@ -52,8 +52,9 @@ PrismConfig.prototype._loadPreset = function (preset) {
             if (preset[key].length == 0) continue;
             this._set(key, preset[key].join(','));
         } else if (key === 'styles') {
-            if (preset[key].length == 0) continue;
-            this._set(key, preset[key].join(';'));
+            for (var sk in preset[key]) {
+                this._set(key, sk + ':' + preset[key][sk]);
+            }
         } else {
             this._set(key, preset[key]);
         }
