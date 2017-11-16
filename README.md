@@ -2,6 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/hexo-prism-plus.svg)](https://badge.fury.io/js/hexo-prism-plus)
 [![npm dependencies](https://david-dm.org/Aetf/hexo-prism-plus.svg)](https://david-dm.org/Aetf/hexo-prism-plus)
+[![Build Status](https://travis-ci.org/Aetf/hexo-prism-plus.svg?branch=master)](https://travis-ci.org/Aetf/hexo-prism-plus)
 
 [![NPM](https://nodei.co/npm/hexo-prism-plus.png)](https://npmjs.org/package/hexo-prism-plus)
 
