@@ -24,15 +24,15 @@
         "postinstall": "npm install --save hexo-inject"
     },
     "dependencies": {
-        "chai": "^4.1.2",
-        "chai-as-promised": "^7.1.1",
-        "hexo-fs": "^0.2.2",
+        "hexo-fs": "^1.0.0",
         "hexo-inject": "^1.0.0",
-        "hexo-util": "^0.6.2",
-        "lodash": "^4.17.4"
+        "hexo-util": "^0.6.3",
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
-        "hexo": "^3.4.1",
-        "mocha": "^4.0.1"
+        "chai": "^4.2.0",
+        "chai-as-promised": "^7.1.1",
+        "hexo": "^3.8.0",
+        "mocha": "^5.2.0"
     }
 }

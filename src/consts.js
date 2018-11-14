@@ -10,7 +10,7 @@ module.exports.LINENO_CLASS = 'line-numbers';
 
 const DEFAULT_VENDORS = {
     // string or list
-    base_url: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.4/',
+    base_url: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/',
     prism: [
         'prism.min.js',
         'plugins/line-numbers/prism-line-numbers.min.js',
