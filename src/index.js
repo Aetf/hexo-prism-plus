@@ -2,18 +2,22 @@
 
 /* global hexo */
 
-const { PRISM_MARKER } = require('./consts');
 const { getOptions } = require('./option');
-const BacktickCodeBlockFilter = require('./filter/backtick_code_block');
-const CodeTagPlugin = require('./tag/include_code');
-const Injector = require('./injector/injector.js')
+const { BacktickCodeBlockFilter } = require('./backtick_code_block');
+const { IncludeCodeTag } = require('./includecode_tag');
+const Injector = require('./injector');
+const { PrismPlusGenerator } = require('./generator');
+const { PrismHighlighter } = require('./highlighter');
 
 function register(hexo) {
-    var opts = getOptions(hexo);
+    const opts = getOptions(hexo);
 
     new Injector(hexo, opts).register();
-    new BacktickCodeBlockFilter(hexo, opts).register();
-    new CodeTagPlugin(hexo, opts).register();
+    new PrismPlusGenerator(hexo, opts).register();
+
+    const highlighter = new PrismHighlighter(hexo, opts);
+    new BacktickCodeBlockFilter(hexo, opts, highlighter).register();
+    new IncludeCodeTag(hexo, opts, highlighter).register();
 }
 
 register(hexo);

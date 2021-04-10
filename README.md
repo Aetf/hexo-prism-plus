@@ -21,14 +21,12 @@ The source code is available on [Github](https://github.com/Aetf/Aetf.github.io)
 `npm i -S hexo-prism-plus`
 
 This will install `hexo-prism-plus` and add it as a dependency in your `package.json`.
-In addition, in order to inject javascript and css to pages, `hexo-inject` is added as a dependency.
 
 The default highlight is automatically disabled, so no more change is needed.
 
-__NOTE__: for `yarn` user, please check if `hexo-inject` has been automatically added to the project
-dependency in `package.json`. `hexo` uses `package.json` to find available plugins, missing entry will cause `hexo-inject` not being loaded during generation.
-
-__NOTE__: while `hexo-inject` is deprecated, it still work with Hexo 3.8.0. In the future it may be factored out.
+Note: this plugin uses server-side rendering combined with client-side hydration, and thus it
+ships with its own copy of prismjs. Make sure you disable any other prismjs related config in your
+theme.
 
 ## Usage
 

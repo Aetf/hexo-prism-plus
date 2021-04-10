@@ -1,7 +1,7 @@
 {
     "name": "hexo-prism-plus",
-    "version": "1.1.0",
-    "description": "Better code block highlighting using Prism",
+    "version": "2.0.0",
+    "description": "Better code block highlighting using Prism with full server-side rendering supporting most Prism plugins",
     "author": "Aetf",
     "license": "BSD-2-Clause",
     "repository": {
@@ -16,23 +16,20 @@
         "hexo",
         "prism",
         "code",
-        "highlight"
+        "highlight",
+        "ssr"
     ],
     "main": "src/index.js",
     "scripts": {
-        "test": "mocha",
-        "postinstall": "npm install --save hexo-inject"
+        "test": "ava"
     },
     "dependencies": {
-        "hexo-fs": "^1.0.0",
-        "hexo-inject": "^1.0.0",
-        "hexo-util": "^0.6.3",
-        "lodash": "^4.17.11"
+        "jsdom": "^16.5.2",
+        "lodash": "^4.17.21",
+        "prismjs": "^1.23.0"
     },
     "devDependencies": {
-        "chai": "^4.2.0",
-        "chai-as-promised": "^7.1.1",
-        "hexo": "^3.8.0",
-        "mocha": "^5.2.0"
+        "ava": "^3.15.0",
+        "hexo": "^5.4.0"
     }
 }
