@@ -1,6 +1,6 @@
 {
     "name": "hexo-prism-plus",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "Better code block highlighting using Prism with full server-side rendering supporting most Prism plugins",
     "author": "Aetf",
     "license": "BSD-2-Clause",
