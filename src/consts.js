@@ -10,15 +10,11 @@ module.exports.DEFAULT_OPTIONS = {
     enable: true,
     vendor_base_url: 'https://cdnjs.cloudflare.com/ajax/libs/prism',
     plugins: [
-        'line-numbers',
     ],
     theme: 'prism',
     default_lang: 'clike',
     presets: {
         default: {
-            lineno: true,
-            classes: [],
-            styles: [],
         }
     }
 };
