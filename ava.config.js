@@ -1,4 +1,4 @@
 export default {
-    files: ['tests/**', '!tests/**/{data,helpers,snapshots}/**'],
+    files: ['tests/**', '!tests/**/{fixtures,helpers,snapshots}/**'],
     ignoredByWatcher: ['{coverage,docs,media,test-d,test-tap}/**']
 };
