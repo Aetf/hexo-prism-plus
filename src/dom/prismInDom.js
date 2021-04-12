@@ -3,6 +3,7 @@
 // this file is evaluated in jsdom
 
 let prismEnv = {};
+let loaded = new Set();
 
 function preparePrismInDom(plugins) {
     window.Prism = { manual: true };
@@ -14,12 +15,11 @@ function preparePrismInDom(plugins) {
     for (const plugin of plugins) {
         __load(plugin);
     }
-    return prismEnv;
+    return loaded;
 }
 
-let loaded = new Set();
 function langLoaded(lang) {
-    return (lang in window.Prism.languages) || loaded.has(lang);
+    return lang === 'none' || (lang in window.Prism.languages) || loaded.has(lang);
 }
 
 function loadLanguage(lang) {

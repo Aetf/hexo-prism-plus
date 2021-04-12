@@ -143,10 +143,20 @@ class PrismUtils {
     // resolve plugin files
     pluginFiles = (plugins, ext) => {
         const { base } = this;
-        return plugins
+        return _.toArray(plugins)
             // map plugin name to path within repo, eg
             // line-numbers => plugins/line-numbers/prism-line-numbers.min.js
             .map(p => pathFn.join('plugins', p, `prism-${p}.${ext}`))
+            // only take existing ones
+            .filter(p => fs.existsSync(pathFn.join(base, p)));
+    }
+
+    componentFiles = (langs) => {
+        const { base } = this;
+        return _.toArray(langs)
+            // map plugin name to path within repo, eg
+            // line-numbers => plugins/line-numbers/prism-line-numbers.min.js
+            .map(p => pathFn.join('components', `prism-${p}.min.js`))
             // only take existing ones
             .filter(p => fs.existsSync(pathFn.join(base, p)));
     }
@@ -157,16 +167,24 @@ class PrismUtils {
         const { langAliases, langDependencies } = this;
 
         // first, we save in reverse order, for ease of processing
-        const topo = [lang, ..._.without(deps, lang)];
+        let topo = [lang, ..._.without(_.toArray(deps), lang)];
+
+        // then resolve alias
+        topo = topo
+            // we don't care force loading
+            .map(id => id.replace('!', ''))
+            .map(id => langAliases[id] || id)
+            .filter(id => id !== 'none');
+
+        // remember already visited ones
         const visited = new Set(topo);
 
         for (let id of topo) {
-            // we don't care force loading
-            id = id.replace('!', '');
-            // resolve alias
-            id = langAliases[id] || id;
             // append any new dependencies
-            for (const d of langDependencies[id] || []) {
+            for (let d of langDependencies[id] || []) {
+                // resolve alias
+                d = langAliases[d] || d;
+
                 if (visited.has(d)) {
                     continue;
                 }

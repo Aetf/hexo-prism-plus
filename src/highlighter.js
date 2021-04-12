@@ -20,7 +20,7 @@ class PrismHighlighter {
         this.runPrism = this.preparePrism();
     }
 
-    // load prism in dom, and return a dict having saved prismenv in prismenv[codeId]
+    // load prism in dom, and return a method to highlight code in dom
     preparePrism = () => {
         const { hexo, dom, opts } = this;
 
@@ -43,7 +43,7 @@ class PrismHighlighter {
 
         const { preparePrismInDom, runPrismInDom } = context.__load('./dom/prismInDom');
 
-        preparePrismInDom(opts.plugins.map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`)));
+        this.loadedLanguages = preparePrismInDom(opts.plugins.map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`)));
         return runPrismInDom;
     }
 
@@ -77,9 +77,12 @@ class PrismHighlighter {
         const allDeps = prismUtils.allDependencies(lang, dependencies);
         const prismEnv = this.runPrism(codeId, allDeps);
 
+        const container = dom.window.document.getElementById(`container-${codeId}`);
+
         // serialize prismEnv to JSON
         // replace element to its id so it can be serialized
         prismEnv.element = prismEnv.element.id;
+        delete prismEnv.grammar;
 
         // attach the serlized prismEnv to the pre
         const prismEnvElm = dom.window.document.createElement('script');
@@ -90,9 +93,17 @@ class PrismHighlighter {
             .replace('>', '\\u003e')
             .replace('&', '\\u0026')
             .replace("'", '\\u0027');
-
-        const container = dom.window.document.getElementById(`container-${codeId}`);
         container.appendChild(prismEnvElm);
+
+        // XXX: it's not yet possible to statically generate toolbar, which mixes dom creation and
+        // event listener attaching
+        // remove the created toolbar container
+        const toolbar = container.querySelector('div.code-toolbar');
+        if (toolbar) {
+            const pre = toolbar.querySelector('pre');
+            container.appendChild(pre);
+            container.removeChild(toolbar);
+        }
 
         const rendered = container.innerHTML;
 

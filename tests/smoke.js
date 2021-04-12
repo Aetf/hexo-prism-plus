@@ -54,7 +54,6 @@ test('render code tag in post', async t => {
     };
 
     const renderedPost = await hexo.post.render(post.full_source, post);
-    console.log(renderedPost);
 
     t.snapshot(renderedPost.content);
 });

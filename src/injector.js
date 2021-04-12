@@ -24,21 +24,16 @@ Injector.prototype._resolvePrism = function() {
 
     const venderUrl = (...parts) => pathFn.join(vendor_base_url, prismUtils.version, ...parts);
 
-    // get a list of plugins js files
+    // get a list of css/js files
     // they may or may not exist, so check our locally installed copy
-    const pluginStyles = prismUtils.pluginFiles(plugins, 'css')
-        .map(_.unary(venderUrl));
 
-    const pluginScripts = prismUtils.pluginFiles(plugins, 'min.js')
-        .map(_.unary(venderUrl));
-
+    // plugin/component js files are bundled and loaded in prism-bundle.js
     return [
         [
             venderUrl('themes', `${theme}.min.css`),
-            ...pluginStyles,
+            ...prismUtils.pluginFiles(plugins, 'css').map(_.unary(venderUrl))
         ],[
             venderUrl('prism.min.js'),
-            ...pluginScripts,
         ]
     ]
 }
@@ -52,6 +47,9 @@ Injector.prototype._injectJs = function() {
     const js = hexo.extend.helper.get('js').bind(hexo);
 
     return js(scripts,
+        {
+            src: '/assets/prism-bundle.js',
+        },
         {
             src: '/assets/prism-plus.js',
             'data-pjax': '',
