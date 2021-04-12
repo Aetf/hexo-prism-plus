@@ -17,7 +17,7 @@ class PrismPlusGenerator {
         return [
             {
                 path: '/assets/prism-plus.js',
-                data: fs.createReadStream(pathFn.join(SELF, 'client', 'prism-plus.js'))
+                data: () => fs.createReadStream(pathFn.join(SELF, 'client', 'prism-plus.js'))
             },
         ]
     }
