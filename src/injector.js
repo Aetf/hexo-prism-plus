@@ -33,12 +33,10 @@ Injector.prototype._resolvePrism = function() {
     const base = pathFn.dirname(require.resolve('prismjs/package.json'));
     const version = require(pathFn.join(base, 'package.json')).version;
 
-    const pluginStyles = prismFiles(base, plugins, 'min.css')
-        // append the vender base url and version
+    const pluginStyles = prismFiles(base, plugins, 'css')
         .map(p => pathFn.join(vendor_base_url, version, p));
 
     const pluginScripts = prismFiles(base, plugins, 'min.js')
-        // append the vender base url and version
         .map(p => pathFn.join(vendor_base_url, version, p));
 
     return [
@@ -60,10 +58,12 @@ Injector.prototype._injectJs = function() {
     const { hexo, scripts } = this;
     const js = hexo.extend.helper.get('js').bind(hexo);
 
-    return [
-        ...scripts,
-        '/assets/prism-plus.js',
-    ].map(js).join('\n');
+    return js(scripts,
+        {
+            src: '/assets/prism-plus.js',
+            'data-pjax': '',
+        }
+    );
 }
 
 Injector.prototype._injectCss = function() {
@@ -74,7 +74,7 @@ Injector.prototype._injectCss = function() {
     const { hexo, styles } = this;
     const css = hexo.extend.helper.get('css').bind(hexo);
 
-    return styles.map(css).join('\n');
+    return css(styles);
 }
 
 Injector.prototype.register = function () {
