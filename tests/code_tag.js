@@ -22,7 +22,7 @@ test.serial.beforeEach(async t => {
     await fs.writeFile(pathFn.join(hexo.base_dir, 'source', 'test_code', 'main.cpp'), t.context.test_file_content);
 
     t.context.highlighter = {
-        highlight: fake(code => code)
+        highlight: fake(code => ({ rendered: code, allDeps: []}))
     };
 
     t.context.tag = new IncludeCodeTag(t.context.hexo, getOptions({}), t.context.highlighter);
@@ -30,7 +30,7 @@ test.serial.beforeEach(async t => {
 
 test('include code tag can find file', async t => {
     const { tag, test_file_content } = t.context;
-    const rendered = await tag._tag(['main.cpp', 'cpp', 'lineno=yes']);
+    const rendered = await tag._tag({}, ['main.cpp', 'cpp', 'lineno=yes']);
 
     t.deepEqual(rendered, test_file_content);
 });

@@ -13,15 +13,15 @@ class BacktickCodeBlockFilter {
         this.highlighter = highlighter;
     }
 
-    _transform = data => {
+    _transform = post => {
         const { hexo, opts, highlighter } = this;
         if (!opts.enable)
             return;
 
-        data.content = data.content.replace(rBacktick, (...argv) => {
+        post.content = post.content.replace(rBacktick, (...argv) => {
             const { start, end, args, code } = argv.pop();
 
-            const html = highlighter.highlight(code, args.trim().split(' ').filter(v => v));
+            const { rendered: html, allDeps } = highlighter.highlight(code, args.trim().split(' ').filter(v => v));
 
             return `${start}<hexoPostRenderCodeBlock>${html}</hexoPostRenderCodeBlock>${end}`;
         });

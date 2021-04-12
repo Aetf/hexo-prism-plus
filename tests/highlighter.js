@@ -20,7 +20,7 @@ test('code is highlighted', async t => {
     }
     `;
 
-    const rendered = highlighter.highlight(code, []);
+    const { rendered, allDeps } = highlighter.highlight(code, []);
 
     const frag = JSDOM.fragment(rendered);
 
@@ -39,7 +39,7 @@ test('toolbar plugin is rendered', async t => {
     }
     `;
 
-    const rendered = highlighter.highlight(code, ['label=abc']);
+    const { rendered, allDeps } = highlighter.highlight(code, ['label=abc']);
 
     const frag = JSDOM.fragment(rendered);
 
@@ -60,7 +60,7 @@ test('line-numbers plugin is rendered', async t => {
     }
     `;
 
-    const rendered = highlighter.highlight(code, ['lineno=true']);
+    const { rendered, allDeps } = highlighter.highlight(code, ['lineno=true']);
 
     const frag = JSDOM.fragment(rendered);
 
@@ -85,7 +85,7 @@ test('command line is rendered', async t => {
     make install
     `;
 
-    const rendered = highlighter.highlight(code, ['bash', 'output=3-5', 'classes=command-line', 'user=aetf']);
+    const { rendered, allDeps } = highlighter.highlight(code, ['bash', 'output=3-5', 'classes=command-line', 'user=aetf']);
 
     const frag = JSDOM.fragment(rendered);
 
@@ -105,7 +105,7 @@ test('non default language is rendered', async t => {
     make install
     `;
 
-    const rendered = highlighter.highlight(code, ['bash']);
+    const { rendered, allDeps } = highlighter.highlight(code, ['bash']);
 
     const frag = JSDOM.fragment(rendered);
 
@@ -125,7 +125,7 @@ test('additional dependencies are loaded', async t => {
     make install
     `;
 
-    const rendered = highlighter.highlight(code, ['bash', 'dependencies=clike,javascript']);
+    const { rendered, allDeps } = highlighter.highlight(code, ['bash', 'dependencies=clike,javascript']);
 
     const frag = JSDOM.fragment(rendered);
 

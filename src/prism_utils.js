@@ -103,17 +103,17 @@ class PrismUtils {
     }
 
     get langAliases() {
-        if (typeof this._langAliases !== 'undefined') {
-            return this._langAliases;
+        if (_.isUndefined(this._langAliases)) {
+            this.loadData();
         }
-        this.loadData();
+        return this._langAliases;
     }
 
     get langDependencies() {
-        if (typeof this._langDependencies !== 'undefined') {
-            return this._langDependencies;
+        if (_.isUndefined(this._langDependencies)) {
+            this.loadData();
         }
-        this.loadData();
+        return this._langDependencies;
     }
 
     // load language dependency data
@@ -149,6 +149,33 @@ class PrismUtils {
             .map(p => pathFn.join('plugins', p, `prism-${p}.${ext}`))
             // only take existing ones
             .filter(p => fs.existsSync(pathFn.join(base, p)));
+    }
+
+    // resolve a array of all dependencies, including dependencies of dependencies.
+    // sorted in topo order
+    allDependencies = (lang, deps) => {
+        const { langAliases, langDependencies } = this;
+
+        // first, we save in reverse order, for ease of processing
+        const topo = [lang, ..._.without(deps, lang)];
+        const visited = new Set(topo);
+
+        for (let id of topo) {
+            // we don't care force loading
+            id = id.replace('!', '');
+            // resolve alias
+            id = langAliases[id] || id;
+            // append any new dependencies
+            for (const d of langDependencies[id] || []) {
+                if (visited.has(d)) {
+                    continue;
+                }
+                topo.push(d);
+                visited.add(d);
+            }
+        }
+
+        return topo.reverse();
     }
 }
 

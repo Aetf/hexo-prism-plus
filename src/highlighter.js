@@ -3,6 +3,7 @@
 const pathFn = require('path');
 const fs = require('fs');
 const vm = require('vm');
+const Module = require('module');
 
 const { JSDOM } = require('jsdom');
 const _ = require('lodash');
@@ -16,7 +17,7 @@ class PrismHighlighter {
         this.opts = opts;
         this.nextId = idGen();
         this.dom = new JSDOM('', { runScripts: 'outside-only' });
-        this.savedPrismEnv = this.preparePrism();
+        this.runPrism = this.preparePrism();
     }
 
     // load prism in dom, and return a dict having saved prismenv in prismenv[codeId]
@@ -25,33 +26,25 @@ class PrismHighlighter {
 
         const context = dom.getInternalVMContext();
         context.__load = id => {
-            // a function to load code similar to the browser environment
+            // similar to CJS require in jsdom
+            // difference is that we always use require from the outside context
             const fullPath = require.resolve(id);
             hexo.log.debug('hexo-prism-plus: loading dom script %s', fullPath);
-            const script = new vm.Script(fs.readFileSync(fullPath), fullPath);
-            script.runInContext(context);
+
+            const m = { exports: {} };
+            m.id = m.filename = fullPath;
+
+            const content = fs.readFileSync(fullPath);
+            const script = `(function(exports, module, __filename, __dirname){${content}\n});`;
+            const fn = vm.runInContext(script, context, fullPath);
+            fn(m.exports, m, fullPath, pathFn.dirname(fullPath));
+            return m.exports;
         };
 
-        const loadPlugins = opts.plugins
-            .map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`))
-            .map(p => `__load('${p}')`)
-            .join(';\n');
+        const { preparePrismInDom, runPrismInDom } = context.__load('./dom/prismInDom');
 
-        const script = new vm.Script(`
-        (() => {
-            window.Prism = { manual: true };
-            __load('prismjs');
-            let prismEnv = {};
-            Prism.hooks.add('after-highlight', env => {
-                prismEnv[env.element.id] = env;
-            });
-            ${loadPlugins};
-            return prismEnv;
-        })()
-        `, 'hexo-prism-plus/preparePrism.js');
-            // Prism.highlightElement(document.getElementById('${codeId}'));
-
-        return script.runInContext(context);
+        preparePrismInDom(opts.plugins.map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`)));
+        return runPrismInDom;
     }
 
     parseArgs = args => {
@@ -81,7 +74,8 @@ class PrismHighlighter {
         dom.window.document.body.insertAdjacentHTML('beforeend', html);
 
         // run prism on jsdom
-        const prismEnv = this.runPrism(codeId);
+        const allDeps = prismUtils.allDependencies(lang, dependencies);
+        const prismEnv = this.runPrism(codeId, allDeps);
 
         // serialize prismEnv to JSON
         // replace element to its id so it can be serialized
@@ -105,24 +99,7 @@ class PrismHighlighter {
         // cleanup
         container.remove();
 
-        return rendered;
-    }
-
-    runPrism = (codeId) => {
-        const { dom, savedPrismEnv } = this;
-
-        const context = dom.getInternalVMContext();
-
-        const script = new vm.Script(`
-            Prism.highlightElement(document.getElementById('${codeId}'));
-        `, 'hexo-prism-plus/runPrism.js');
-
-        script.runInContext(context);
-
-        const prismEnv = savedPrismEnv[codeId];
-        delete savedPrismEnv[codeId];
-
-        return prismEnv;
+        return { rendered, allDeps };
     }
 }
 

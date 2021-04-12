@@ -11,7 +11,7 @@ setupSandbox(test);
 
 test.beforeEach(async t => {
     t.context.highlighter = {
-        highlight: fake('')
+        highlight: fake(code => ({ rendered: '', allDeps: []}))
     };
 
     t.context.filter = new BacktickCodeBlockFilter(t.context.hexo, getOptions({}), t.context.highlighter);
