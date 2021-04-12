@@ -3,14 +3,14 @@
 /* global hexo */
 
 const { getOptions } = require('./option');
-const { BacktickCodeBlockFilter } = require('./backtick_code_block');
-const { IncludeCodeTag } = require('./includecode_tag');
+const { BacktickCodeBlockFilter } = require('./code_block');
+const { IncludeCodeTag } = require('./code_tag');
 const Injector = require('./injector');
 const { PrismPlusGenerator } = require('./generator');
 const { PrismHighlighter } = require('./highlighter');
 
 function register(hexo) {
-    const opts = getOptions(hexo);
+    const opts = getOptions(hexo.config.prism_plus);
 
     new Injector(hexo, opts).register();
     new PrismPlusGenerator(hexo, opts).register();

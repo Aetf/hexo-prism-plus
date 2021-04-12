@@ -7,7 +7,7 @@ const fs = require('fs/promises');
  * Include code tag
  *
  * Synctax:
- *     {% includecode /path/to/file [inline options]%}
+ *     {% code /path/to/file [inline options]%}
  */
 class IncludeCodeTag {
     constructor(hexo, opts, highlighter) {
@@ -31,13 +31,13 @@ class IncludeCodeTag {
             return;
 
         const src = pathFn.join(hexo.source_dir, codeDir, path);
-        const code = await fs.readFile(src);
+        const code = await fs.readFile(src, 'utf-8');
 
         return highlighter.highlight(code, args);
     }
 
     register() {
-        this.hexo.extend.tag.register('includecode', this._tag, { async: true });
+        this.hexo.extend.tag.register('code', this._tag, { async: true });
     }
 }
 

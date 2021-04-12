@@ -3,10 +3,17 @@
 const { DEFAULT_OPTIONS } = require('./consts');
 const _ = require('lodash');
 
-function getOptions (hexo) {
-    var config = hexo.config;
-
-    var opts = _.defaults({}, config.prism_plus, DEFAULT_OPTIONS);
+function getOptions(from) {
+    const opts = _.mergeWith(
+        from || {},
+        DEFAULT_OPTIONS,
+        // concat array instead of recursive merge
+        (objVal, srcVal) => {
+            if (_.isArray(objVal)) {
+                return objVal.concat(srcVal);
+            }
+        }
+    );
 
     return opts;
 }

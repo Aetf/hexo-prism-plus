@@ -56,7 +56,7 @@ Additional options for Prism can be specified either inline or using a preset de
 To insert code snippets from file with Prism highlight, use
 
 ```
-{% includecode /path/to/file [inline options] %}
+{% code /path/to/file [inline options] %}
 ```
 
 `/path/to/file` is relative to `code_dir` in `_config.yml`.
