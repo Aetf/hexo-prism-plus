@@ -1,6 +1,5 @@
 'use strict'
 
-const crypto = require('crypto');
 const pathFn = require('path');
 const fs = require('fs');
 const vm = require('vm');
@@ -9,6 +8,7 @@ const { JSDOM } = require('jsdom');
 const _ = require('lodash');
 
 const { LINENO_CLASS } = require('./consts');
+const { idGen } = require('./id_gen');
 
 class PrismArgs {
     constructor(opts, args) {
@@ -95,23 +95,25 @@ class PrismHighlighter {
     constructor(hexo, opts) {
         this.hexo = hexo;
         this.opts = opts;
+        this.nextId = idGen();
         this.dom = new JSDOM('', { runScripts: 'outside-only' });
     }
 
     parseArgs = args => {
         const { hexo, opts } = this;
 
+        hexo.log.debug('hexo-prism-plus: parsing args: %s', args);
         const parsed = new PrismArgs(opts, args);
         hexo.log.debug('hexo-prism-plus: parsed args: %s', parsed);
         return parsed;
     }
 
     highlight = (code, args) => {
-        const { opts, dom } = this;
+        const { opts, dom, nextId } = this;
 
         // pre render to jsdom
         const {preClass, preStyle, dataAttr, lang} = this.parseArgs(args);
-        const codeId = crypto.randomBytes(4).toString('hex');
+        const codeId = nextId();
         const html = [
             `<pre class="${preClass}" style="${preStyle}" ${dataAttr}>`,
             `<code id="${codeId}" class="language-${lang}">\n`,
@@ -121,15 +123,24 @@ class PrismHighlighter {
         dom.window.document.body.insertAdjacentHTML('beforeend', html);
 
         // run prism on jsdom
-        const prismEnv = this.runPrism(dom, codeId, opts.plugins);
+        const prismEnv = this.runPrism(codeId);
 
         // serialize prismEnv to JSON
         // replace element to its id so it can be serialized
         prismEnv.element = prismEnv.element.id;
 
         // attach the serlized prismEnv to the pre
+        const prismEnvElm = dom.window.document.createElement('script');
+        prismEnvElm.setAttribute('data-prism-hydrate', codeId);
+        prismEnvElm.type = 'application/json';
+        prismEnvElm.textContent = JSON.stringify(prismEnv)
+            .replace('<', `\\u003c`)
+            .replace('>', '\\u003e')
+            .replace('&', '\\u0026')
+            .replace("'", '\\u0027');
+
         const pre = dom.window.document.getElementById(codeId).parentElement;
-        pre.setAttribute('data-prism-hydrate', JSON.stringify(prismEnv));
+        pre.insertAdjacentElement('afterbegin', prismEnvElm);
 
         const rendered = pre.outerHTML;
 
@@ -140,7 +151,7 @@ class PrismHighlighter {
     }
 
     runPrism = (codeId) => {
-        const { dom } = this;
+        const { dom, opts } = this;
 
         const context = dom.getInternalVMContext();
         context.__load = id => {
@@ -150,7 +161,7 @@ class PrismHighlighter {
             script.runInContext(context);
         };
 
-        const loadPlugins = this.opts.plugins
+        const loadPlugins = opts.plugins
             .map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`))
             .map(p => `__load('${p}')`)
             .join(';\n');
