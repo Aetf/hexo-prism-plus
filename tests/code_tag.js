@@ -1,19 +1,15 @@
 'use strict';
 
 const test = require('ava');
+const { fake, setupSandbox } = require('./helpers');
 
 const fs = require('fs/promises');
 const pathFn = require('path');
 
 const { IncludeCodeTag } = require('../src/code_tag');
-const { DEFAULT_OPTIONS } = require('../src/consts');
-
-const { fake, setupSandbox } = require('./helpers');
+const { getOptions } = require('../src/option');
 
 setupSandbox(test, {
-    highlight: { enable: false },
-    prism: { enable: false },
-    prism_plus: { enable: true },
     code_dir: 'test_code',
 });
 
@@ -29,7 +25,7 @@ test.serial.beforeEach(async t => {
         highlight: fake(code => code)
     };
 
-    t.context.tag = new IncludeCodeTag(t.context.hexo, DEFAULT_OPTIONS, t.context.highlighter);
+    t.context.tag = new IncludeCodeTag(t.context.hexo, getOptions({}), t.context.highlighter);
 });
 
 test('include code tag can find file', async t => {

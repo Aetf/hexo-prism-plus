@@ -1,11 +1,11 @@
 'use strict';
 
 const test = require('ava');
+const { setupSandbox, fake } = require('./helpers');
 
 const { BacktickCodeBlockFilter } = require('../src/code_block');
-const { DEFAULT_OPTIONS } = require('../src/consts');
+const { getOptions } = require('../src/option');
 
-const { setupSandbox, fake } = require('./helpers');
 
 setupSandbox(test);
 
@@ -14,7 +14,7 @@ test.beforeEach(async t => {
         highlight: fake('')
     };
 
-    t.context.filter = new BacktickCodeBlockFilter(t.context.hexo, DEFAULT_OPTIONS, t.context.highlighter);
+    t.context.filter = new BacktickCodeBlockFilter(t.context.hexo, getOptions({}), t.context.highlighter);
 });
 
 test('backtick code block accepts ```', t => {

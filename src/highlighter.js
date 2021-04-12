@@ -97,6 +97,42 @@ class PrismHighlighter {
         this.opts = opts;
         this.nextId = idGen();
         this.dom = new JSDOM('', { runScripts: 'outside-only' });
+        this.savedPrismEnv = this.preparePrism();
+    }
+
+    // load prism in dom, and return a dict having saved prismenv in prismenv[codeId]
+    preparePrism = () => {
+        const { hexo, dom, opts } = this;
+
+        const context = dom.getInternalVMContext();
+        context.__load = id => {
+            // a function to load code similar to the browser environment
+            const fullPath = require.resolve(id);
+            hexo.log.debug('hexo-prism-plus: loading dom script %s', fullPath);
+            const script = new vm.Script(fs.readFileSync(fullPath), fullPath);
+            script.runInContext(context);
+        };
+
+        const loadPlugins = opts.plugins
+            .map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`))
+            .map(p => `__load('${p}')`)
+            .join(';\n');
+
+        const script = new vm.Script(`
+        (() => {
+            window.Prism = { manual: true };
+            __load('prismjs');
+            let prismEnv = {};
+            Prism.hooks.add('after-highlight', env => {
+                prismEnv[env.element.id] = env;
+            });
+            ${loadPlugins};
+            return prismEnv;
+        })()
+        `, 'hexo-prism-plus/preparePrism.js');
+            // Prism.highlightElement(document.getElementById('${codeId}'));
+
+        return script.runInContext(context);
     }
 
     parseArgs = args => {
@@ -104,7 +140,7 @@ class PrismHighlighter {
 
         hexo.log.debug('hexo-prism-plus: parsing args: %s', args);
         const parsed = new PrismArgs(opts, args);
-        hexo.log.debug('hexo-prism-plus: parsed args: %s', parsed);
+        hexo.log.debug('hexo-prism-plus: parsed args', parsed.lang, parsed._classes, parsed._styles, parsed._dataAttr);
         return parsed;
     }
 
@@ -115,10 +151,11 @@ class PrismHighlighter {
         const {preClass, preStyle, dataAttr, lang} = this.parseArgs(args);
         const codeId = nextId();
         const html = [
+            `<div id="container-${codeId}">`,
             `<pre class="${preClass}" style="${preStyle}" ${dataAttr}>`,
             `<code id="${codeId}" class="language-${lang}">\n`,
             _.escape(code),
-            '</code></pre>'
+            '</code></pre></div>'
         ].join('');
         dom.window.document.body.insertAdjacentHTML('beforeend', html);
 
@@ -139,48 +176,32 @@ class PrismHighlighter {
             .replace('&', '\\u0026')
             .replace("'", '\\u0027');
 
-        const pre = dom.window.document.getElementById(codeId).parentElement;
-        pre.insertAdjacentElement('afterbegin', prismEnvElm);
+        const container = dom.window.document.getElementById(`container-${codeId}`);
+        container.appendChild(prismEnvElm);
 
-        const rendered = pre.outerHTML;
+        const rendered = container.innerHTML;
 
         // cleanup
-        pre.remove();
+        container.remove();
 
         return rendered;
     }
 
     runPrism = (codeId) => {
-        const { dom, opts } = this;
+        const { dom, savedPrismEnv } = this;
 
         const context = dom.getInternalVMContext();
-        context.__load = id => {
-            // a function to load code similar to the browser environment
-            const fullPath = require.resolve(id);
-            const script = new vm.Script(fs.readFileSync(fullPath), fullPath);
-            script.runInContext(context);
-        };
-
-        const loadPlugins = opts.plugins
-            .map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`))
-            .map(p => `__load('${p}')`)
-            .join(';\n');
 
         const script = new vm.Script(`
-        (() => {
-            window.Prism = { manual: true };
-            __load('prismjs');
-            let prismEnv = {};
-            Prism.hooks.add('after-highlight', env => {
-                prismEnv = env;
-            });
-            ${loadPlugins};
             Prism.highlightElement(document.getElementById('${codeId}'));
-            return prismEnv;
-        })()
-        `, 'prismHighlight.js');
+        `, 'hexo-prism-plus/runPrism.js');
 
-        return script.runInContext(context);
+        script.runInContext(context);
+
+        const prismEnv = savedPrismEnv[codeId];
+        delete savedPrismEnv[codeId];
+
+        return prismEnv;
     }
 }
 

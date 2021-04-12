@@ -1,10 +1,9 @@
 'use strict';
 
 const test = require('ava');
+const { setupSandbox } = require('./helpers');
 
 const pathFn = require('path');
-
-const { setupSandbox } = require('./helpers');
 
 setupSandbox(test, {
     highlight: { enable: false },
