@@ -1,7 +1,7 @@
 'use strict';
 const test = require('ava');
 
-const { PrismArgs } = require('../src/highlighter');
+const { PrismArgs } = require('../src/prism_utils');
 const { getOptions } = require('../src/option');
 
 test('lang is provided by opts.default_lang if not present in args', t => {
@@ -30,7 +30,7 @@ test('first word in args is treated as keyvalue pair if contains =', t => {
 
     const args = new PrismArgs(opts, ['test=lang']);
     t.is(args.lang, opts.default_lang);
-    t.is(args.dataAttr, 'data-test="lang"');
+    t.is(args.preDataAttr, 'data-test="lang"');
 });
 
 test('preset can be loaded anywhere in args', t => {
@@ -48,7 +48,7 @@ test('preset can be loaded anywhere in args', t => {
     const args = new PrismArgs(opts, ['preset=testPreset', 'lineno=true', 'preset=testPresetB']);
     t.is(args.lang, opts.default_lang);
     t.is(args.preClass, 'line-numbers');
-    t.is(args.dataAttr, 'data-propertyA="false"');
+    t.is(args.preDataAttr, 'data-propertyA="false"');
 });
 
 test('lineno in preset accepts boolean', t => {
@@ -96,6 +96,19 @@ test('styles in preset accepts object', t => {
     t.is(args.preStyle, 'max-height: 30em');
 });
 
+test('dependencies in preset accepts array', t => {
+    const opts = getOptions({
+        presets: {
+            default: {
+                dependencies: ['depA', 'depB']
+            },
+        }
+    });
+
+    const args = new PrismArgs(opts, []);
+    t.deepEqual(args.dependencies, new Set(['depA', 'depB']));
+})
+
 test('classes in inline args accepts "," separated string', t => {
     const opts = getOptions({});
 
@@ -109,6 +122,14 @@ test('styles in inline args accepts ";" separated string', t => {
     const args = new PrismArgs(opts, ['styles=display:none;max-height:30em;']);
     t.is(args.preStyle, 'display:none;max-height:30em;');
 });
+
+test('dependencies in inline args accepts "," separated string', t => {
+    const opts = getOptions({});
+
+    const args = new PrismArgs(opts, ['dependencies=depA,depB']);
+    t.deepEqual(args.dependencies, new Set(['depA', 'depB']));
+});
+
 
 test('lineno in inline args accepts string true/false', t => {
     const opts = getOptions({});

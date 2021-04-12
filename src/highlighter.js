@@ -7,89 +7,8 @@ const vm = require('vm');
 const { JSDOM } = require('jsdom');
 const _ = require('lodash');
 
-const { LINENO_CLASS } = require('./consts');
 const { idGen } = require('./id_gen');
-
-class PrismArgs {
-    constructor(opts, args) {
-        const { default_lang, presets } = opts;
-        this.lang = default_lang || 'none';
-        if (args.length > 0 && args[0].indexOf('=') == -1) {
-            // treat it as lang if it is not empty
-            this.lang = args.shift() || this.lang;
-        }
-
-        // process key=value pairs in args
-        const [presetTerms, otherTerms] = _.chain(args)
-            .map(term => term.split(/=(.+)/, 2))
-            .partition(([key]) => key === 'preset')
-            .value();
-
-        // preset=xxx takes precedence, process them first in order
-        presetTerms.unshift(['preset', 'default']);
-        for (const [, preset] of presetTerms) {
-            if (_.isUndefined(presets[preset])) {
-                continue;
-            }
-            // preset resets all previous state
-            this._classes = new Set();
-            this._styles = [];
-            this._dataAttr = {};
-            for (const [key, value] of _.toPairs(presets[preset])) {
-                this._set(key, value);
-            }
-        }
-
-        // process other terms
-        for (const [key, value] of otherTerms) {
-            this._set(key, value);
-        }
-    }
-
-    _set = (key, value) => {
-        if (key === 'lineno') {
-            if (String(value).toLowerCase() == "true") {
-                this._classes.add(LINENO_CLASS);
-            } else {
-                this._classes.delete(LINENO_CLASS);
-            }
-        } else if (key === 'max-height') {
-            this._styles.apend(`${key}: ${value}`);
-        } else if (key === 'classes') {
-            if (!Array.isArray(value)) {
-                value = value.split(',');
-            }
-            for (const clz of value) {
-                this._classes.add(clz);
-            }
-        } else if (key === 'styles') {
-            if (_.isString(value)) {
-                value = value.split(';');
-            } else {
-                value = _.toPairs(value).map(([sk, sv]) => `${sk}: ${sv}`);
-            }
-            for (const sty of value) {
-                this._styles.push(sty);
-            }
-        } else {
-            this._dataAttr[key] = _.toString(value);
-        }
-    }
-
-    get preClass() {
-        return _.toArray(this._classes).join(' ');
-    }
-
-    get preStyle() {
-        return this._styles.join(';');
-    }
-
-    get dataAttr() {
-        return _.toPairs(this._dataAttr)
-            .map(([key, value]) => `data-${key}="${_.escape(value)}"`)
-            .join(' ');
-    }
-}
+const { prismUtils, PrismArgs } = require('./prism_utils');
 
 class PrismHighlighter {
     constructor(hexo, opts) {
@@ -140,19 +59,21 @@ class PrismHighlighter {
 
         hexo.log.debug('hexo-prism-plus: parsing args: %s', args);
         const parsed = new PrismArgs(opts, args);
-        hexo.log.debug('hexo-prism-plus: parsed args', parsed.lang, parsed._classes, parsed._styles, parsed._dataAttr);
-        return parsed;
+        hexo.log.debug('hexo-prism-plus: parsed args', parsed.lang, parsed.classes, parsed.styles, parsed.dataAttrs);
+        return {
+            ..._.pick(parsed, ['preClass', 'preStyle', 'preDataAttr', 'lang', 'dependencies']),
+        };
     }
 
     highlight = (code, args) => {
         const { opts, dom, nextId } = this;
 
         // pre render to jsdom
-        const {preClass, preStyle, dataAttr, lang} = this.parseArgs(args);
+        const {preClass, preStyle, preDataAttr, lang, dependencies} = this.parseArgs(args);
         const codeId = nextId();
         const html = [
             `<div id="container-${codeId}">`,
-            `<pre class="${preClass}" style="${preStyle}" ${dataAttr}>`,
+            `<pre class="${preClass}" style="${preStyle}" ${preDataAttr}>`,
             `<code id="${codeId}" class="language-${lang}">\n`,
             _.escape(code),
             '</code></pre></div>'
@@ -205,5 +126,4 @@ class PrismHighlighter {
     }
 }
 
-module.exports.PrismArgs = PrismArgs;
 module.exports.PrismHighlighter = PrismHighlighter;

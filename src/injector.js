@@ -1,16 +1,10 @@
 'use strict';
 
 const pathFn = require('path');
-const fs = require('fs');
 
-function prismFiles(base, plugins, ext) {
-    return plugins
-        // map plugin name to path within repo, eg
-        // line-numbers => plugins/line-numbers/prism-line-numbers.min.js
-        .map(p => pathFn.join('plugins', p, `prism-${p}.${ext}`))
-        // only take existing ones
-        .filter(p => fs.existsSync(pathFn.join(base, p)));
-}
+const _ = require('lodash');
+
+const { prismUtils } = require('./prism_utils');
 
 function Injector(hexo, opts) {
     this.hexo = hexo;
@@ -28,23 +22,22 @@ Injector.prototype._resolvePrism = function() {
         theme,
     } = this.opts;
 
+    const venderUrl = (...parts) => pathFn.join(vendor_base_url, prismUtils.version, ...parts);
+
     // get a list of plugins js files
     // they may or may not exist, so check our locally installed copy
-    const base = pathFn.dirname(require.resolve('prismjs/package.json'));
-    const version = require(pathFn.join(base, 'package.json')).version;
+    const pluginStyles = prismUtils.pluginFiles(plugins, 'css')
+        .map(_.unary(venderUrl));
 
-    const pluginStyles = prismFiles(base, plugins, 'css')
-        .map(p => pathFn.join(vendor_base_url, version, p));
-
-    const pluginScripts = prismFiles(base, plugins, 'min.js')
-        .map(p => pathFn.join(vendor_base_url, version, p));
+    const pluginScripts = prismUtils.pluginFiles(plugins, 'min.js')
+        .map(_.unary(venderUrl));
 
     return [
         [
-            pathFn.join(vendor_base_url, version, 'themes', `${theme}.min.css`),
+            venderUrl('themes', `${theme}.min.css`),
             ...pluginStyles,
         ],[
-            pathFn.join(vendor_base_url, version, 'prism.min.js'),
+            venderUrl('prism.min.js'),
             ...pluginScripts,
         ]
     ]

@@ -110,4 +110,24 @@ test('non default language is rendered', async t => {
     const frag = JSDOM.fragment(rendered);
 
     t.assert(frag.querySelector('span.token'));
-})
+});
+
+test('additional dependencies are loaded', async t => {
+    const { hexo } = t.context;
+    const highlighter = new PrismHighlighter(hexo, getOptions({}));
+
+    const code = `
+    mkdir build && cd build
+    cmake -DCMAKE_PREFIX_PATH=~/stage/lib64/cmake \
+                            -DCMAKE_BUILD_TYPE=Debug \
+                            -DCMAKE_INSTALL_PREFIX=~/stage \
+                            ..
+    make install
+    `;
+
+    const rendered = highlighter.highlight(code, ['bash', 'dependencies=clike,javascript']);
+
+    const frag = JSDOM.fragment(rendered);
+
+    t.fail('todo');
+});
