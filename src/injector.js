@@ -43,10 +43,10 @@ Injector.prototype._injectJs = function() {
         return;
     }
 
-    const { hexo, scripts } = this;
+    const { hexo } = this;
     const js = hexo.extend.helper.get('js').bind(hexo);
 
-    return js(scripts,
+    return js(
         {
             src: '/assets/prism-bundle.js',
         },

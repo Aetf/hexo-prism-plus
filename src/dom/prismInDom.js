@@ -7,7 +7,7 @@ let loaded = new Set();
 
 function preparePrismInDom(plugins) {
     window.Prism = { manual: true };
-    window.Prism = __load('prismjs');
+    window.Prism = __load('prismjs/components/prism-core');
 
     Prism.hooks.add('after-highlight', env => {
         prismEnv[env.element.id] = env;

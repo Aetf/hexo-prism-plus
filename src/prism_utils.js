@@ -140,7 +140,7 @@ class PrismUtils {
             plugins: data.plugins.meta,
             languages: data.languages.meta,
             themes: data.themes.meta,
-            core: data.core.meat,
+            core: data.core.meta,
         };
 
         for (const key in data.languages) {
@@ -206,15 +206,21 @@ class PrismUtils {
     }
 
     coreFile = () => {
-        return this._prismMeta.core.path;
+        return this.componentFiles(['core'])[0]
     }
 
     isRuntimePlugin = (plugin) => {
         return this.runtimePlugins.has(plugin);
     }
 
-    // resolve a array of all dependencies, including dependencies of dependencies.
-    // sorted in topo order
+    /**
+     * resolve a array of all dependencies, including dependencies of dependencies,
+     * sorted in topo order.
+     * 
+     * @param {String} lang current language
+     * @param {Array<String>} deps additional dependencies to include
+     * @returns 
+     */
     allDependencies = (lang, deps) => {
         const { langAliases, langDependencies } = this;
 

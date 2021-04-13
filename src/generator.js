@@ -41,15 +41,17 @@ class PrismPlusGenerator {
         hexo.log.debug('hexo-prism-plus: load prism runtime plugins ', runtimePlugins);
 
         const files = [
+            prismUtils.coreFile(),
             ...prismUtils.componentFiles(highlighter.loadedLanguages),
             ...prismUtils.pluginFiles(runtimePlugins, '.min.js'),
         ];
         const contents = await Promise.all(
             files.map(file => fs.promises.readFile(pathFn.join(prismUtils.base, file), 'utf-8'))
         );
-        return _.zip(contents, files)
-            .flatMap(([content, file]) => [`/* ${file} */`, content])
-            .join('\n');
+        const lines = _.zip(contents, files)
+            .flatMap(([content, file]) => [`/* ${file} */`, content]);
+        lines.unshift('"use strict";\nwindow.Prism=window.Prism||{};window.Prism.manual=true');
+        return lines.join('\n');
     }
 
     register() {
