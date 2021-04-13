@@ -30,8 +30,8 @@ Injector.prototype._resolvePrism = function() {
     // plugin/component js files are bundled and loaded in prism-bundle.js
     return [
         [
-            venderUrl('themes', `${theme}.min.css`),
-            ...prismUtils.pluginFiles(plugins, 'css').map(_.unary(venderUrl))
+            ...prismUtils.themeFiles([theme], '.css').map(_.unary(venderUrl)),
+            ...prismUtils.pluginFiles(plugins, '.css').map(_.unary(venderUrl))
         ],[
             venderUrl('prism.min.js'),
         ]

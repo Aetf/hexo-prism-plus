@@ -102,6 +102,13 @@ class PrismUtils {
         this.version = require(pathFn.join(this.base, 'package.json')).version;
     }
 
+    get runtimePlugins() {
+        if (_.isUndefined(this._runtimePlugins)) {
+            this.loadData();
+        }
+        return this._runtimePlugins;
+    }
+
     get langAliases() {
         if (_.isUndefined(this._langAliases)) {
             this.loadData();
@@ -116,11 +123,25 @@ class PrismUtils {
         return this._langDependencies;
     }
 
+    get prismMeta() {
+        if (_.isUndefined(this._prismMeta)) {
+            this.loadData();
+        }
+        return this._prismMeta;
+    }
+
     // load language dependency data
     loadData = () => {
         const data = require(pathFn.join(this.base, 'components.json'));
         this._langAliases = {};
         this._langDependencies = {};
+        this._runtimePlugins = new Set();
+        this._prismMeta = {
+            plugins: data.plugins.meta,
+            languages: data.languages.meta,
+            themes: data.themes.meta,
+            core: data.core.meat,
+        };
 
         for (const key in data.languages) {
             if (key === 'meta') {
@@ -138,27 +159,58 @@ class PrismUtils {
                 this._langDependencies[key] = requires;
             }
         }
+
+        // plugins need to run in browser
+        const plugins = _.chain(data.plugins).keys().without('meta').value();
+        const pluginFiles = this.pluginFiles(plugins, '.js');
+        if (plugins.length !== pluginFiles.length) {
+            throw new Error('Corrupted prismjs files');
+        }
+        for (const [plugin, file] of _.zip(plugins, pluginFiles)) {
+            const content = fs.readFileSync(pathFn.join(this.base, file));
+            if (content.includes('addEventListener')) {
+                this._runtimePlugins.add(plugin);
+            }
+        }
+
+        // additionally all plugins depending on toolbar need to run in browser
+        _.chain(data.plugins)
+            .pickBy(plugin => plugin.require === 'toolbar')
+            .keys()
+            .forEach(p => this._runtimePlugins.add(p))
+            .commit();
+    }
+
+    prismFiles = (type, list, ext) => {
+        const { base, prismMeta } = this;
+        ext = ext || '';
+        return _.toArray(list)
+            // map plugin name to path within repo, eg
+            // line-numbers => plugins/line-numbers/prism-line-numbers.js
+            .map(p => prismMeta[type].path.replace(/\{id\}/g, p) + ext)
+            // only take existing ones
+            .filter(p => fs.existsSync(pathFn.join(base, p)));
     }
 
     // resolve plugin files
     pluginFiles = (plugins, ext) => {
-        const { base } = this;
-        return _.toArray(plugins)
-            // map plugin name to path within repo, eg
-            // line-numbers => plugins/line-numbers/prism-line-numbers.min.js
-            .map(p => pathFn.join('plugins', p, `prism-${p}.${ext}`))
-            // only take existing ones
-            .filter(p => fs.existsSync(pathFn.join(base, p)));
+        return this.prismFiles('plugins', plugins, ext);
     }
 
     componentFiles = (langs) => {
-        const { base } = this;
-        return _.toArray(langs)
-            // map plugin name to path within repo, eg
-            // line-numbers => plugins/line-numbers/prism-line-numbers.min.js
-            .map(p => pathFn.join('components', `prism-${p}.min.js`))
-            // only take existing ones
-            .filter(p => fs.existsSync(pathFn.join(base, p)));
+        return this.prismFiles('languages', langs, '.min.js');
+    }
+
+    themeFiles = (themes) => {
+        return this.prismFiles('themes', themes, '');
+    }
+
+    coreFile = () => {
+        return this._prismMeta.core.path;
+    }
+
+    isRuntimePlugin = (plugin) => {
+        return this.runtimePlugins.has(plugin);
     }
 
     // resolve a array of all dependencies, including dependencies of dependencies.

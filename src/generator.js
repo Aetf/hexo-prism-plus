@@ -35,11 +35,14 @@ class PrismPlusGenerator {
 
     _generatePrismBundle = async () => {
         // generate a prism bundle that loads necessary plugins and langs
-        const { opts, highlighter } = this;
+        const { hexo, opts, highlighter } = this;
+        const runtimePlugins = opts.plugins.filter(p => prismUtils.isRuntimePlugin(p));
+
+        hexo.log.debug('hexo-prism-plus: load prism runtime plugins ', runtimePlugins);
+
         const files = [
             ...prismUtils.componentFiles(highlighter.loadedLanguages),
-            // TODO: only load plugins with runtime beheavior
-            ...prismUtils.pluginFiles(opts.plugins, 'min.js'),
+            ...prismUtils.pluginFiles(runtimePlugins, '.min.js'),
         ];
         const contents = await Promise.all(
             files.map(file => fs.promises.readFile(pathFn.join(prismUtils.base, file), 'utf-8'))
