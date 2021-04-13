@@ -22,7 +22,7 @@ Injector.prototype._resolvePrism = function() {
         theme,
     } = this.opts;
 
-    const venderUrl = (...parts) => pathFn.join(vendor_base_url, prismUtils.version, ...parts);
+    const venderUrl = (...parts) => [vendor_base_url, prismUtils.version, ...parts].join('/');
 
     // get a list of css/js files
     // they may or may not exist, so check our locally installed copy
