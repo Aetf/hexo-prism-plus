@@ -82,18 +82,17 @@ class PrismHighlighter {
         // serialize prismEnv to JSON
         // replace element to its id so it can be serialized
         prismEnv.element = prismEnv.element.id;
+        // grammar contains circlic references, we'll just load it during hydration
         delete prismEnv.grammar;
-
-        // attach the serlized prismEnv to the pre
-        const prismEnvElm = dom.window.document.createElement('script');
-        prismEnvElm.setAttribute('data-prism-hydrate', codeId);
-        prismEnvElm.type = 'application/json';
-        prismEnvElm.textContent = JSON.stringify(prismEnv)
+        const prismEnvJson = JSON.stringify(prismEnv)
             .replace('<', `\\u003c`)
             .replace('>', '\\u003e')
             .replace('&', '\\u0026')
             .replace("'", '\\u0027');
-        container.appendChild(prismEnvElm);
+
+        // attach the serialized prismEnv to the code
+        container.querySelector('code')
+            .setAttribute('data-prism-hydrate', prismEnvJson);
 
         // XXX: it's not yet possible to statically generate toolbar, which mixes dom creation and
         // event listener attaching
