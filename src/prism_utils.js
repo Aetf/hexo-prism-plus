@@ -154,9 +154,14 @@ class PrismUtils {
                     this._langAliases[alias] = key;
                 }
             }
+            this._langDependencies[key] = [];
             if (language.require) {
-                const requires = _.isString(language.require) ? [language.require] : language.require;
-                this._langDependencies[key] = requires;
+                const deps = _.isString(language.require) ? [language.require] : language.require;
+                this._langDependencies[key].push(...deps);
+            }
+            if (language.modify) {
+                const deps = _.isString(language.modify) ? [language.modify] : language.modify;
+                this._langDependencies[key].push(...deps);
             }
         }
 
@@ -221,37 +226,44 @@ class PrismUtils {
      * @param {Array<String>} deps additional dependencies to include
      * @returns 
      */
-    allDependencies = (lang, deps) => {
+    allDependencies = (lang, deps = []) => {
         const { langAliases, langDependencies } = this;
 
-        // first, we save in reverse order, for ease of processing
-        let topo = [lang, ..._.without(_.toArray(deps), lang)];
-
-        // then resolve alias
-        topo = topo
-            // we don't care force loading
-            .map(id => id.replace('!', ''))
-            .map(id => langAliases[id] || id)
-            .filter(id => id !== 'none');
-
-        // remember already visited ones
-        const visited = new Set(topo);
-
-        for (let id of topo) {
-            // append any new dependencies
-            for (let d of langDependencies[id] || []) {
+        // give each lang a rank, which is defined as
+        // the longest path length it is required by from
+        // the root
+        /** @type {{[key: string]: number}} */
+        const ranks = {};
+        for (const elem of [lang, ...deps]) {
+            const stack = [ [elem, 1] ];
+            while (stack.length > 0) {
+                let [curr, rank] = stack.pop();
+                // ignore force loading
+                curr = curr.replace('!', '');
                 // resolve alias
-                d = langAliases[d] || d;
-
-                if (visited.has(d)) {
+                curr = langAliases[curr] || curr;
+                // skip none
+                if (curr === 'none') {
                     continue;
                 }
-                topo.push(d);
-                visited.add(d);
+                // skip if curr is already has higher rank
+                if (rank <= ranks[curr] || 0) {
+                    continue;
+                }
+
+                ranks[curr] = rank;
+                for (const dep of langDependencies[curr] || []) {
+                    stack.push([dep, rank + 1]);
+                }
             }
         }
-
-        return topo.reverse();
+        // lang with higher rank gets loaded earlier
+        return _.chain(ranks)
+            .toPairs()
+            // gives a stable ordering by additionally sort by lang name secondarily
+            .orderBy([a => a[1], a => a[0]], 'desc')
+            .map(([lang]) => lang)
+            .value();
     }
 }
 

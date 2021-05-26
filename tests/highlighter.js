@@ -127,6 +127,7 @@ test('additional dependencies are loaded', async t => {
     make install
     `;
 
+    console.log('started');
     const { allDeps } = highlighter.highlight(code, ['bash', 'dependencies=clike,js']);
 
     t.assert(allDeps.indexOf('bash') !== -1);
