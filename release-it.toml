@@ -1,0 +1,6 @@
+[git]
+tagArgs=["-s"]
+[npm]
+publish=false
+[github]
+release=false

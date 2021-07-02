@@ -1,0 +1,56 @@
+name: release
+on:
+  push:
+    # Enable when testing release infrastructure on a branch.
+    branches:
+    - build
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm test
+
+  create-release:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      # Set to force version number, e.g., when no tag exists.
+      PKG_VERSION: ''
+    steps:
+      - name: Get the release version from the tag
+        if: env.PKG_VERSION == ''
+        run: |
+          # Apparently, this is the right way to get a tag name. Really?
+          #
+          # See: https://github.community/t5/GitHub-Actions/How-to-get-just-the-tag-name/m-p/32167/highlight/true#M1027
+          echo "PKG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          echo "version is: ${{ env.PKG_VERSION }}"
+
+      - name: Create GitHub release
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.PKG_VERSION }}
+          release_name: ${{ env.PKG_VERSION }}
+
+  publish-npm:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
