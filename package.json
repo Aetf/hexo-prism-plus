@@ -24,6 +24,7 @@
         "test": "ava"
     },
     "dependencies": {
+        "chalk": "^4.1.1",
         "jsdom": "^16.5.2",
         "lodash": "^4.17.21",
         "prismjs": "^1.23.0"

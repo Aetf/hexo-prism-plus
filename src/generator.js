@@ -4,6 +4,7 @@ const pathFn = require('path');
 const fs = require('fs');
 
 const _ = require('lodash');
+const chalk = require('chalk');
 
 const { SELF } = require('./consts');
 const { prismUtils } = require('./prism_utils');
@@ -46,7 +47,10 @@ class PrismPlusGenerator {
             ...prismUtils.pluginFiles(runtimePlugins, '.min.js'),
         ];
         const contents = await Promise.all(
-            files.map(file => fs.promises.readFile(pathFn.join(prismUtils.base, file), 'utf-8'))
+            files.map(file => {
+                hexo.log.info('Prism bundle:', chalk.magenta(file));
+                return fs.promises.readFile(pathFn.join(prismUtils.base, file), 'utf-8');
+            })
         );
         const lines = _.zip(contents, files)
             .flatMap(([content, file]) => [`/* ${file} */`, content]);
