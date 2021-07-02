@@ -14,7 +14,7 @@ function register(hexo) {
     const highlighter = new PrismHighlighter(hexo, opts);
 
     new Injector(hexo, opts).register();
-    new PrismPlusGenerator(hexo, opts, highlighter).register();
+    new PrismPlusGenerator(hexo, opts).register();
 
     new BacktickCodeBlockFilter(hexo, opts, highlighter).register();
     new IncludeCodeTag(hexo, opts, highlighter).register();

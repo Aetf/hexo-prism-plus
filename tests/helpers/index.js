@@ -30,6 +30,11 @@ function setupSandbox(test, hexo_config) {
     });
 }
 
+/**
+ * A fake function
+ * @param {} val 
+ * @returns 
+ */
 function fake(val) {
     const store = [];
     const faked = function() {

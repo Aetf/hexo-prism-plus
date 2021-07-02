@@ -34,8 +34,8 @@ test('render code block in post', async t => {
     };
 
     const renderedPost = await hexo.post.render(post.full_source, post);
-
     t.snapshot(renderedPost.content);
+    t.deepEqual(renderedPost._prism_plus_deps, ['clike']);
 });
 
 test('render code tag in post', async t => {
@@ -56,4 +56,5 @@ test('render code tag in post', async t => {
     const renderedPost = await hexo.post.render(post.full_source, post);
 
     t.snapshot(renderedPost.content);
+    t.deepEqual(renderedPost._prism_plus_deps, ['clike']);
 });

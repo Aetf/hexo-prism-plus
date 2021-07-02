@@ -43,7 +43,7 @@ class PrismHighlighter {
 
         const { preparePrismInDom, runPrismInDom } = context.__load('./dom/prismInDom');
 
-        this.loadedLanguages = preparePrismInDom(opts.plugins.map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`)));
+        preparePrismInDom(opts.plugins.map(p => pathFn.join('prismjs', 'plugins', p, `prism-${p}`)));
         return runPrismInDom;
     }
 

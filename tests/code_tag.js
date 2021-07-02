@@ -30,7 +30,10 @@ test.serial.beforeEach(async t => {
 
 test('include code tag can find file', async t => {
     const { tag, test_file_content } = t.context;
-    const rendered = await tag._tag({}, ['main.cpp', 'cpp', 'lineno=yes']);
+    const post = {
+        _prism_plus_deps: [],
+    }
+    const rendered = await tag._tag(post, ['main.cpp', 'cpp', 'lineno=yes']);
 
     t.deepEqual(rendered, test_file_content);
 });

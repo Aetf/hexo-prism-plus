@@ -35,6 +35,13 @@ class IncludeCodeTag {
         const code = await fs.readFile(src, 'utf-8');
 
         const { rendered, allDeps } = highlighter.highlight(code, args);
+
+        const post_deps = new Set([...post._prism_plus_deps, ...allDeps]);
+        // make sure to modify inplace, the post object may be shadow copied around
+        post._prism_plus_deps.splice(0, post._prism_plus_deps.length, ...post_deps);
+
+        hexo.log.debug('Saved', allDeps, 'to post:', post._prism_plus_deps);
+
         return rendered;
     }
 
