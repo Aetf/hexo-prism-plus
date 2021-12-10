@@ -5,8 +5,8 @@ const _ = require('lodash');
 
 function getOptions(from) {
     const opts = _.mergeWith(
-        from || {},
         DEFAULT_OPTIONS,
+        from || {},
         // concat array instead of recursive merge
         (objVal, srcVal) => {
             if (_.isArray(objVal)) {
