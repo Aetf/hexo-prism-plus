@@ -26,13 +26,13 @@
     },
     "dependencies": {
         "chalk": "^4.1.2",
-        "jsdom": "^19.0.0",
+        "jsdom": "^22.1.0",
         "lodash": "^4.17.21",
-        "prismjs": "^1.25.0"
+        "prismjs": "^1.29.0"
     },
     "devDependencies": {
-        "ava": "^3.15.0",
-        "hexo": "^5.4.0",
-        "release-it": "^14.11.8"
+        "ava": "^5.3.1",
+        "hexo": "^6.3.0",
+        "release-it": "^16.1.3"
     }
 }
