@@ -25,7 +25,7 @@
         "release": "release-it --config release-it.toml"
     },
     "dependencies": {
-        "chalk": "^4.1.2",
+        "chalk": "^5.0.0",
         "jsdom": "^22.1.0",
         "lodash": "^4.17.21",
         "prismjs": "^1.29.0"
